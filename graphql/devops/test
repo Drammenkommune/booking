@@ -1,0 +1,13 @@
+#!/bin/sh
+
+ENV_TYPE=test
+NODE_ENV=$ENV_TYPE
+ENV_NAME=$ENV_NAME-test
+
+# Run eslint on source files
+eslint --color $SRC_DIR/schema $SRC_DIR/server $SRC_DIR/lib $SRC_DIR/tests
+
+# Run the test suite
+# tape tests/**/*.test.js | tap-spec
+
+exit $?

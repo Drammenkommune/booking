@@ -1,0 +1,218 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>no.difi.oppslagstjenesten</groupId>
+	<artifactId>oppslagstjenesten-client-sample</artifactId>
+	<version>5-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>Eksempel på implementasjon mot kontakt- og reservasjonsregisteret i offentlig sektor, versjon 5</name>
+	<url>https://github.com/difi/kontaktregisteret-klient</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<cxf.version>2.7.3</cxf.version>
+		<junit.version>4.10</junit.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.sparkjava</groupId>
+			<artifactId>spark-core</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-bindings-soap</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-ws-rm</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-ws-security</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-ws-addr</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-ws-policy</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-bindings-xml</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+    </dependencies>
+	<build>
+		<plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>no.difi.oppslagstjenesten.client.cxf.App</mainClass>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/services/com.sun.tools.xjc.Plugin</resource>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/cxf/cxf.extension</resource>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
+									<resource>META-INF/extensions.xml</resource>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
+									<resource>META-INF/cxf/extensions.xml</resource>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/cxf/bus-extensions.txt</resource>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
+									<resource>META-INF/cxf/bus-extensions.xml</resource>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
+									<resource>META-INF/wsdl.plugin.xml</resource>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
+									<resource>META-INF/tools.service.validator.xml</resource>
+								</transformer>
+								<transformer implementation="org.apache.cxf.maven.PluginTransformer">
+									<resource>META-INF/tools-plugin.xml</resource>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
+									<resource>META-INF/cxf/java2wsbeans.xml</resource>
+								</transformer>
+								<transformer implementation="org.apache.cxf.maven.CXFAllTransformer" />
+							</transformers>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>executable</shadedClassifierName>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.cxf</groupId>
+						<artifactId>cxf-buildtools</artifactId>
+						<version>2.2.12</version>
+						<type>jar</type>
+						<scope>compile</scope>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-codegen-plugin</artifactId>
+				<version>${cxf.version}</version>
+				<executions>
+					<execution>
+						<configuration>
+							<sourceRoot>
+								${basedir}/target/generated-sources
+							</sourceRoot>
+							<wsdlOptions>
+								<wsdlOption>
+                                    <wsdl>
+										${basedir}/src/main/resources/wsdl/oppslagstjeneste-ws-16-02.wsdl
+									</wsdl>
+									<extraargs>
+										<!-- Needed for include the header object as a valid parameter to the methods -->
+										<extraarg>-exsh</extraarg>
+										<extraarg>true</extraarg>
+									</extraargs>
+								</wsdlOption>
+							</wsdlOptions>
+						</configuration>
+						<goals>
+							<goal>wsdl2java</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <finalName>no.difi.oppslagstjenesten.client.cxf</finalName>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <archive>
+                                <manifest>
+                                    <mainClass>no.difi.oppslagstjenesten.client.cxf.App</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <finalName>no.difi.oppslagstjenesten.client.cxf</finalName>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>no.difi.oppslagstjenesten.client.cxf.App</mainClass>
+                            <classpathPrefix>dependency-jars/</classpathPrefix>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+		</plugins>
+	</build>
+</project>

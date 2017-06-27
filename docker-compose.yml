@@ -1,0 +1,137 @@
+version: '2'
+
+services:
+  graphql:
+    image: drammenkommune/graphql${TAG}
+    build:
+      context: graphql
+    volumes:
+      - ./graphql:/app/graphql/src
+      - /app/graphql/src/node_modules
+      - /app/graphql/schema
+    links:
+      - postgres
+    environment:
+      ENV_NAME: dk-${USER}-dev
+      ENV_TYPE: development
+      EMAIL_REDIRECT: null@example.com
+      DK_PUBLIC_URL: "http://localhost/"
+      DK_ADMIN_URL: "http://localhost/admin"
+      DK_AUTH_URL: "http://localhost/auth"
+      VIRTUAL_HOST: /graphql, /api/*
+      VIRTUAL_HOST_WEIGHT: 2
+
+  auth:
+    image: drammenkommune/auth${TAG}
+    build:
+      context: auth
+    volumes:
+      - ./auth:/app/auth/src
+      - /app/auth/src/node_modules
+    environment:
+      ENV_NAME: dk-${USER}-dev
+      ENV_TYPE: development
+      VIRTUAL_HOST: /auth/*
+      VIRTUAL_HOST_WEIGHT: 3
+
+  krr:
+    image: drammenkommune/krr${TAG}
+    build:
+      context: krr
+    volumes:
+      - ./krr:/app/krr/src
+      - /app/krr/src/node_modules
+    environment:
+      ENV_NAME: dk-${USER}-dev
+      ENV_TYPE: development
+      VIRTUAL_HOST: /krr
+      VIRTUAL_HOST_WEIGHT: 2
+
+  shared:
+    build:
+      context: shared
+    volumes:
+      - ./shared:/app/shared/src
+      - /app/shared/src/node_modules
+      - /app/shared/dist
+
+  public:
+    image: drammenkommune/public${TAG}
+    build:
+      context: public
+    volumes:
+      - ./public:/app/public/src
+      - /app/public/src/node_modules
+    volumes_from:
+      - graphql
+      - shared
+    links:
+      - graphql
+      - shared
+    environment:
+      ENV_TYPE: development
+      PROFILE_EDIT_URL: "https://brukerprofil.difi.no/minprofil"
+      VIRTUAL_HOST: '*'
+      VIRTUAL_HOST_WEIGHT: 0
+
+
+  admin:
+    image: drammenkommune/admin${TAG}
+    build:
+      context: admin
+    volumes:
+      - ./admin:/app/admin/src
+      - /app/admin/src/node_modules
+    volumes_from:
+      - graphql
+      - shared
+    links:
+      - graphql
+      - shared
+    environment:
+      ENV_TYPE: development
+      VIRTUAL_HOST: /admin/*, /admin
+      VIRTUAL_HOST_WEIGHT: 1
+
+  superadmin:
+    image: drammenkommune/superadmin${TAG}
+    build:
+      context: superadmin
+    volumes:
+      - ./superadmin:/app/superadmin/src
+      - /app/superadmin/src/node_modules
+    volumes_from:
+      - graphql
+      - shared
+    links:
+      - graphql
+      - shared
+    environment:
+      ENV_TYPE: development
+      VIRTUAL_HOST: /superadmin/*, /superadmin
+      VIRTUAL_HOST_WEIGHT: 1
+
+  lb:
+    image: 'dockercloud/haproxy:latest'
+    links:
+      - graphql
+      - auth
+      - admin
+      - superadmin
+      - public
+      - krr
+    # logging:
+    #   driver: "none"
+    ports:
+      - '80:80'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  postgres:
+    image: postgres:9.5
+    logging:
+      driver: "none"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: 'secret'

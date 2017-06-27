@@ -1,0 +1,57 @@
+{
+  "name": "dk-auth",
+  "version": "0.0.1",
+  "description": "Authentication with ID-porten",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Skalar/dk-booking-app.git"
+  },
+  "author": "Skalar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Skalar/dk-booking-app/issues"
+  },
+  "homepage": "https://github.com/Skalar/dk-booking-app#readme",
+  "dependencies": {
+    "babel-cli": "^6.16.0",
+    "babel-core": "^6.17.0",
+    "babel-plugin-transform-runtime": "^6.15.0",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "babel-root-import": "^4.1.3",
+    "express": "^4.14.0",
+    "jsonwebtoken": "^7.1.9",
+    "knex": "^0.12.6",
+    "node-fetch": "^1.6.3",
+    "nodemon": "^1.11.0",
+    "pg": "^6.1.0",
+    "saml2-js": "git+https://github.com/Skalar/saml2.git",
+    "soap": "^0.17.0",
+    "strong-soap": "^1.0.2",
+    "winston": "^2.2.0",
+    "ws.js": "^2.0.22",
+    "xml": "^1.0.1",
+    "xml-crypto": "skalar/xml-crypto",
+    "xml2js": "^0.4.17",
+    "xmlbuilder": "^8.2.2",
+    "xpath": "^0.0.23"
+  },
+  "devDependencies": {
+    "babel-eslint": "^7.0.0",
+    "eslint": "^3.8.1",
+    "eslint-config-skalar": "^0.0.7"
+  },
+  "babel": {
+    "plugins": [
+      "transform-runtime",
+      "babel-root-import"
+    ],
+    "presets": [
+      "es2015",
+      "stage-0"
+    ]
+  }
+}

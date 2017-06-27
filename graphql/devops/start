@@ -1,0 +1,46 @@
+#!/bin/sh
+
+case ${ENV_TYPE:-development} in
+
+production)
+  node server
+  ;;
+
+development)
+  # Watch src for changes and build with babel
+  # Skip initial build because the image already contains compiled src
+  cd $SRC_DIR
+  babel --watch --quiet --skip-initial-build \
+    --ignore node_modules --retain-lines --source-maps inline \
+    --copy-files --out-dir $RUN_DIR \
+    $SRC_DIR &
+
+  cd $RUN_DIR
+  # Setup env
+  devops/setup-env.js &
+
+  # Generate schema .json, diagram and .graphql
+  SCHEMA_TMP=/tmp/schema
+  SCHEMA_DEST=/app/$serviceName/schema
+  nodemon -q -d 0.5 -w $RUN_DIR/schema --exec "\
+    devops/generate-schema.js /tmp/schema
+    diff -aw $SCHEMA_TMP/schema.json $SCHEMA_DEST/schema.json > /dev/null || (
+      rsync -a $SCHEMA_TMP/ $SCHEMA_DEST/
+    )
+  " &
+
+  NODEMON_WATCH_DIRS="-w schema -w lib -w server -w db"
+
+  # Run graphql server
+  nodemon --quiet --delay 0.5 \
+    $NODEMON_WATCH_DIRS \
+    --exec node server &
+
+  # Run tests
+  nodemon --quiet --delay 0.5 \
+    $NODEMON_WATCH_DIRS \
+    --exec devops/test &
+
+  wait
+  ;;
+esac

@@ -1,0 +1,25 @@
+#!/bin/sh
+
+case ${ENV_TYPE:-development} in
+
+  production)
+    node server
+    ;;
+
+  development)
+    cd $SRC_DIR
+
+    SHARED_DIR=/app/shared/src/src/
+    SCHEMA_SRC=/app/graphql/schema/schema.json
+    SCHEMA_DEST=$SRC_DIR/app/plugins/graphql-schema.json
+
+    # Run webpack dev server and restart whenever graphql schema changes
+    nodemon -L -d 1 -q -w $SCHEMA_SRC -x "cp $SCHEMA_SRC $SCHEMA_DEST; node server" &
+
+    # Copy compiled shared code into app
+    nodemon -L -d 1 -q -w $SHARED_DIR -x "echo \"Shared changed\" && rsync -a --delete $SHARED_DIR $SRC_DIR/app/shared/" &
+
+    wait
+    ;;
+
+esac

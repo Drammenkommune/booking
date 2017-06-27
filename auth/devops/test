@@ -1,0 +1,10 @@
+#!/bin/sh
+
+ENV_TYPE=test
+NODE_ENV=$ENV_TYPE
+ENV_NAME=$ENV_NAME-test
+
+# Run the test suite
+# tape tests/**/*.test.js | tap-spec
+
+exit $?

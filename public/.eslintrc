@@ -1,0 +1,11 @@
+{
+  "extends": [
+    "skalar/configs/react"
+  ],
+
+  "rules": {
+    "no-magic-numbers": [1, {"ignoreArrayIndexes": true, "ignore": [-1, 0, 1, 2, 100]}],
+    "no-process-env": 0,
+    "no-else-return": 0
+  }
+}
